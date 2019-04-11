@@ -55,20 +55,47 @@ def create_tree(data, label):
         node[feature_label][c] = create_tree(partitioned, label)
     return node
 
-def root_node(tree):
+def root(tree):
     return list(tree.keys())[0]
 
 def is_dictionary(potential_node):
     return isinstance(potential_node, dict)
 
 def classify(tree, label, data):
-    root = root_node(tree)
-    node = tree[root]
-    index = label.index(root)
+    root_node = root(tree)
+    child_node = tree[root_node]
+    index = label.index(root_node)
 
-    for key in node.keys():
+    for key in child_node.keys():
         if data[index] == key:
-            if is_dictionary(node[key]):
-                return classify(node[key], label, data)
+            if is_dictionary(child_node[key]):
+                return classify(child_node[key], label, data)
             else:
-                return node[key]
+                return child_node[key]
+
+def build_rule(tree, label, identifier=0):
+    space_identifier = '  '*identifier
+    space_identifier_copy = space_identifier
+    root_node = root(tree)
+    child_node = tree[root_node]
+    index = label.index(root_node)
+
+    for key in child_node.keys():
+        space_identifier_copy += 'if ' + label[index] + ' = ' + str(key)
+        if is_dictionary(child_node[key]):
+            space_identifier_copy += ':\n' + space_identifier + build_rule(child_node[key], label, identifier + 1)
+        else:
+            space_identifier_copy += ' then ' + str(child_node[key]) + ('.\n' if identifier == 0 else ', ')
+
+    if space_identifier_copy[-2:] == ', ':
+        space_identifier_copy = space_identifier_copy[:-2]
+
+    space_identifier_copy += '\n'
+    return space_identifier_copy
+
+data = [[0, 0, False], [1, 0, False], [0, 1, True], [1, 1, True]]
+label = ['x', 'y', 'out']
+
+tree = create_tree(data, label)
+
+print(build_rule(tree, label))
