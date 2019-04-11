@@ -4,8 +4,7 @@ import math
 import operator
 
 with open("data", "rb") as f:
-    L = pickle.load(f)
-    print(len(L))
+    training_data = pickle.load(f)
 
 def calculate_category_frequency(data):
     return collections.Counter([item[-1] for item in data])
@@ -93,9 +92,7 @@ def build_rule(tree, label, identifier=0):
     space_identifier_copy += '\n'
     return space_identifier_copy
 
-data = [[0, 0, False], [1, 0, False], [0, 1, True], [1, 1, True]]
 label = ['x', 'y', 'out']
 
-tree = create_tree(data, label)
-
+tree = create_tree(training_data, label)
 print(build_rule(tree, label))
