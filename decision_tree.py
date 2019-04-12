@@ -3,8 +3,9 @@ import collections
 import math
 import operator
 
-with open("data", "rb") as f:
+with open("data_rand", "rb") as f:
     training_data = pickle.load(f)
+    print(training_data)
 
 def calculate_category_frequency(data):
     return collections.Counter([item[-1] for item in data])
@@ -92,7 +93,25 @@ def build_rule(tree, label, identifier=0):
     space_identifier_copy += '\n'
     return space_identifier_copy
 
+def find_edges(tree, label, x, y):
+    x.sort()
+    y.sort()
+    diagonals = [i for i in set(x).intersection(set(y))]
+    diagonals.sort()
+    L = [classify(tree, label, [d, d]) for d in diagonals]
+    low = L.index(False)
+    min_x = x[low]
+    min_y = y[low]
+
+    high = L[::-1].index(False)
+    max_x = x[len(x)-1-high]
+    max_y = y[len(y)-1-high]
+
+    return (min_x, min_y), (max_x, max_y)
+
 label = ['x', 'y', 'out']
 
 tree = create_tree(training_data, label)
 print(build_rule(tree, label))
+
+print(find_edges(tree, label, [x[0] for x in training_data], [x[0] for x in training_data]))
